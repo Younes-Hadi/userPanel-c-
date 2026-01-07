@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// int welcomePanel();
+int mainPanel();
 void loginPanel();
 void buttonControl(string);
 void moveCursor(int, int);
@@ -14,12 +14,13 @@ int main()
     system("cls");
     moveCursor(0, 0);
     loginPanel();
+    mainPanel();
     return 0;
 }
 
-// int welcomePanel(){
+int mainPanel(){
 
-// }
+}
 
 void loginPanel()
 {
@@ -90,3 +91,6 @@ void moveCursor(int x, int y)
 
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), position);
 }
+
+
+
