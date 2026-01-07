@@ -8,7 +8,6 @@ using namespace std;
 
 void mainPanel(string);
 void loginPanel();
-void buttonControl(string);
 void moveCursor(int, int);
 void actionDoner(string, string, bool);
 int main()
