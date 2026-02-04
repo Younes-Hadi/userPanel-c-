@@ -42,8 +42,11 @@ void deleteItem(int);
 void unknownError(string);
 void invalid();
 void navigationText(string);
+void saveData();
+void loadData();
 int main()
 {
+    loadData();
     loginPanel();
     return 0;
 }
@@ -239,6 +242,7 @@ void addItem(string &mode)
     cin.ignore();
     cout << itemsName[a] << " in count of " << itemsCount[a] << ", added to the items list successfully!" << endl;
     itemsLength += 1;
+    saveData();
     Sleep(4000);
     mainPanel();
 }
@@ -320,6 +324,7 @@ void borrowItem(string &mode)
                     itemsCount[importantNumber] -= itemNumFake;
                     itemNum += itemNumFake;
                     cout << itemNumFake << ' ' << itemsName[importantNumber] << ((itemNumFake > 1) ? 's' : ' ') << " borrowed successfully!" << endl;
+                    saveData();
                     Sleep(4000);
                     loop = false;
                     mainPanel();
@@ -370,6 +375,7 @@ void repayItem(string &mode)
             {
                 borrowedItem = "";
             }
+            saveData();
             Sleep(4000);
             mainPanel();
         }
@@ -467,6 +473,7 @@ void editItem(int index)
         itemsCount[index] = newNumber - itemNum;
         cout << "\t" << itemsName[index] << " count changed to " << itemsCount[index] + itemNum << " successfully!" << endl;
         newNumber = 0;
+        saveData();
         Sleep(4000);
         mainPanel();
         return;
@@ -559,6 +566,57 @@ void navigationText(string text)
     {
         text = "";
         mainPanel();
+    }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void saveData()
+{
+    ofstream out("data.text");
+    if (!out)
+        return;
+
+    out << itemsLength << '\n';
+    out << borrowedItem << '\n';
+    out << itemNum << '\n';
+
+    for (int i = 0; i < itemsLength; i++)
+    {
+        out << itemsName[i] << '\n';
+        out << itemsCount[i] << '\n';
+    }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void loadData()
+{
+    ifstream in("data.text");
+    if (!in)
+        return;
+    in >> itemsLength;
+    in.ignore();
+    getline(in, borrowedItem);
+    in >> itemNum;
+    in.ignore();
+    for (int i = 0; i < itemsLength; i++)
+    {
+        getline(in, itemsName[i]);
+        in >> itemsCount[i];
+        in.ignore();
+    }
+    if (!borrowedItem.empty() && itemNum > 0)
+    {
+        for (int i = 0; i < itemsLength; i++)
+        {
+            if (itemsName[i] == borrowedItem)
+            {
+                importantNumber = i;
+                break;
+            }
+        }
+    }
+    if (importantNumber == -1)
+    {
+        borrowedItem = "";
+        itemNum = 0;
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
