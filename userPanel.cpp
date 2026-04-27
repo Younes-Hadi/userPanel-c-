@@ -7,19 +7,20 @@
 #include <iomanip>
 #include <limits>
 #include <fstream>
+#include <vector>
 
 // Using...
 using namespace std;
 
 // Global variables...
 int itemsLength = 4;
-string itemsName[100] = {"laptop", "computercase", "projector", "broom"};
-int itemsCount[100] = {3, 5, 8, 4};
+vector<string> itemsName = {"laptop", "computercase", "projector", "broom"};
+vector<int> itemsCount = {3, 5, 8, 4};
 bool fullAccess;
 string username;
 string borrowedItem = ""; // name of the borrowed item
 int itemNum = 0;          // number of borrowed items
-int importantNumber;      // number of borrowed item's index
+int importantNumber = -1; // number of borrowed item's index
 
 // Functions...
 void mainPanel();
@@ -218,7 +219,7 @@ void changeItems(string action, int index)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void viewItem(string &mode)
 {
-    int j = 0;
+    int i = 0;
 
     cout << "The items that we have right now are:" << endl
          << endl;
@@ -231,14 +232,16 @@ void viewItem(string &mode)
 void addItem(string &mode)
 {
     int a = itemsLength;
+    int unCheckedValueCount;
     string unCheckedVlaue;
     cout << "Please enter name of the item that you want to add, then enter count of it..." << endl;
     getline(cin, unCheckedVlaue);
     toLowerCase(unCheckedVlaue);
     navigationText(unCheckedVlaue);
-    itemsName[a] = unCheckedVlaue;
+    itemsName.push_back(unCheckedVlaue);
     unCheckedVlaue = "";
-    cin >> itemsCount[a];
+    cin >> unCheckedValueCount;
+    itemsCount.push_back(unCheckedValueCount);
     cin.ignore();
     cout << itemsName[a] << " in count of " << itemsCount[a] << ", added to the items list successfully!" << endl;
     itemsLength += 1;
@@ -441,7 +444,7 @@ void itemsDetail(string name, int index)
     {
         changeItems(action, index);
     }
-    else if (action != "edit" || action != "delete")
+    else
         actionDoner(action);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -529,18 +532,22 @@ void repayAlarm()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void navbarPack()
 {
-    string navbar[6] = {"Home", "Items list", "classes list", "Add new item", "Borrow item", "contact us"};
+    vector<string> navbar = {"Home", "Items list", "classes list", "Add new item", "Borrow item", "contact us"};
     system("cls");
     moveCursor(0, 0);
-    for (int i = 0; i < 6; i++)
+    int i = 0;
+    for (string navbarItems : navbar)
     {
-        (fullAccess && i == 3) ? (cout << "   |   " << navbar[i]) : (!fullAccess && i == 4) ? (cout << "   |   " << navbar[i])
-                                                                : (i < 3 || i == 5)         ? cout << "   |   " << navbar[i]
-                                                                                            : cout << "";
-        if (i == (sizeof(navbar) / sizeof(navbar[0])) - 1)
+        (fullAccess && i == 3) ? (cout << "   |   " << navbarItems) : (!fullAccess && i == 4) ? (cout << "   |   " << navbarItems)
+                                                                  : (i < 3 || i == 5)         ? cout << "   |   " << navbarItems
+                                                                                              : cout << "";
+        if (i == 5)
         {
             cout << "   |" << endl;
         }
+        i++;
+        if (i == 6)
+            break;
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -593,15 +600,26 @@ void loadData()
         return;
     in >> itemsLength;
     in.ignore();
+
     getline(in, borrowedItem);
     in >> itemNum;
     in.ignore();
+    itemsName.clear();
+    itemsCount.clear();
+
     for (int i = 0; i < itemsLength; i++)
     {
-        getline(in, itemsName[i]);
-        in >> itemsCount[i];
+        string name;
+        int count;
+
+        getline(in, name);
+        in >> count;
         in.ignore();
+
+        itemsName.push_back(name);
+        itemsCount.push_back(count);
     }
+    importantNumber = -1;
     if (!borrowedItem.empty() && itemNum > 0)
     {
         for (int i = 0; i < itemsLength; i++)
