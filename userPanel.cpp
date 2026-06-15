@@ -12,10 +12,17 @@
 // Using...
 using namespace std;
 
+// Struct
+struct ItemForm
+{
+    string name;
+    int count;
+};
+
 // Global variables...
 int itemsLength = 4;
-vector<string> itemsName = {"laptop", "computercase", "projector", "broom"};
-vector<int> itemsCount = {3, 5, 8, 4};
+vector<ItemForm> itemsList = {
+    {"laptop", 3}, {"computercase", 5}, {"projector", 8}, {"broom", 4}};
 bool fullAccess;
 string username;
 string borrowedItem = ""; // name of the borrowed item
@@ -183,9 +190,13 @@ void ItemController(string mode)
     getline(cin, action);
     toLowerCase(action);
     navigationText(action);
-    for (int i = 0; i < itemsLength; i++)
+    int i = -1;
+    for (auto item : itemsList)
     {
-        if (action == "repay" && !fullAccess)
+        i++;
+        if (i == itemsLength)
+            break;
+        else if (action == "repay" && !fullAccess)
         { // repay item
             if (itemNum > 0)
             {
@@ -194,7 +205,7 @@ void ItemController(string mode)
             else
                 invalid();
         }
-        else if (action == itemsName[i])
+        else if (action == item.name)
         {
             itemsDetail(action, i);
             return;
@@ -223,28 +234,26 @@ void viewItem(string &mode)
 
     cout << "The items that we have right now are:" << endl
          << endl;
-    for (int i = 0; i < itemsLength; i++)
+    for (auto item : itemsList)
     {
-        cout << "     *" << itemsName[i] << " in count of " << itemsCount[i] << '.' << endl;
+        cout << "     *" << item.name << " in count of " << item.count << '.' << endl;
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void addItem(string &mode)
 {
     int a = itemsLength;
-    int unCheckedValueCount;
-    string unCheckedVlaue;
+    ItemForm unCheckedValues;
     cout << "Please enter name of the item that you want to add, then enter count of it..." << endl;
-    getline(cin, unCheckedVlaue);
-    toLowerCase(unCheckedVlaue);
-    navigationText(unCheckedVlaue);
-    itemsName.push_back(unCheckedVlaue);
-    unCheckedVlaue = "";
-    cin >> unCheckedValueCount;
-    itemsCount.push_back(unCheckedValueCount);
+    getline(cin, unCheckedValues.name);
+    toLowerCase(unCheckedValues.name);
+    navigationText(unCheckedValues.name);
+    cin >> unCheckedValues.count;
+    itemsList.push_back(unCheckedValues);
     cin.ignore();
-    cout << itemsName[a] << " in count of " << itemsCount[a] << ", added to the items list successfully!" << endl;
+    cout << itemsList[a].name << " in count of " << itemsList[a].count << ", added to the items list successfully!" << endl;
     itemsLength += 1;
+    unCheckedValues = {"", 0};
     saveData();
     Sleep(4000);
     mainPanel();
@@ -270,14 +279,18 @@ void borrowItem(string &mode)
             }
             else
             {
-                for (int i = 0; i < itemsLength; i++)
+                int i = -1;
+                for (auto item : itemsList)
                 {
-                    if (itemsName[i] == borrowedItem)
+                    i++;
+                    if (i == itemsLength)
+                        break;
+                    if (item.name == borrowedItem)
                     {
                         importantNumber = i;
                         break;
                     }
-                    else if (i == itemsLength - 1 && itemsName[itemsLength - 1] != borrowedItem)
+                    else if (i == itemsLength - 1 && item.name != borrowedItem)
                     {
                         system("cls");
                         moveCursor(35, 11);
@@ -311,7 +324,7 @@ void borrowItem(string &mode)
                     Sleep(4000);
                     continue;
                 }
-                else if (itemNumFake > itemsCount[importantNumber])
+                else if (itemNumFake > itemsList[importantNumber].count)
                 {
 
                     system("cls");
@@ -324,9 +337,9 @@ void borrowItem(string &mode)
                 }
                 else
                 {
-                    itemsCount[importantNumber] -= itemNumFake;
+                    itemsList[importantNumber].count -= itemNumFake;
                     itemNum += itemNumFake;
-                    cout << itemNumFake << ' ' << itemsName[importantNumber] << ((itemNumFake > 1) ? 's' : ' ') << " borrowed successfully!" << endl;
+                    cout << itemNumFake << ' ' << itemsList[importantNumber].name << ((itemNumFake > 1) ? 's' : ' ') << " borrowed successfully!" << endl;
                     saveData();
                     Sleep(4000);
                     loop = false;
@@ -372,7 +385,7 @@ void repayItem(string &mode)
         if (repayNum > 0 && repayNum <= itemNum)
         {
             itemNum -= repayNum;
-            itemsCount[importantNumber] += repayNum;
+            itemsList[importantNumber].count += repayNum;
             cout << repayNum << " " << repayOption << (repayNum > 1 ? "s" : "") << " repayed successfully!" << endl;
             if (itemNum == 0)
             {
@@ -408,7 +421,7 @@ void itemsDetail(string name, int index)
         else
             cout << "_";
     }
-    cout << setw(7) << "\t" << "> in count of " << itemsCount[index] << endl;
+    cout << setw(7) << "\t" << "> in count of " << itemsList[index].count << endl;
     if (itemNum > 0 && name == borrowedItem)
     {
         moveCursor(0, 10);
@@ -461,20 +474,20 @@ void editItem(int index)
 {
     int newNumber;
     cout << "Tell use what change you want to make..." << endl;
-    cout << "Change number of " << itemsName[index] << ((itemNum + itemsCount[index] > 1) ? 's' : ' ') << " from " << itemNum + itemsCount[index] << " to..." << endl;
+    cout << "Change number of " << itemsList[index].name << ((itemNum + itemsList[index].count > 1) ? 's' : ' ') << " from " << itemNum + itemsList[index].count << " to..." << endl;
     cin >> newNumber;
     cin.ignore();
     string situation = "edit";
-    if (borrowedItem == itemsName[index] && newNumber < itemNum)
+    if (borrowedItem == itemsList[index].name && newNumber < itemNum)
     {
-        cout << "Currently, you are not able to change the " << itemsName[index] << "'s count to " << newNumber << endl;
+        cout << "Currently, you are not able to change the " << itemsList[index].name << "'s count to " << newNumber << endl;
         Sleep(3000);
         mainPanel();
     }
     else if (newNumber >= itemNum && newNumber > 0)
     {
-        itemsCount[index] = newNumber - itemNum;
-        cout << "\t" << itemsName[index] << " count changed to " << itemsCount[index] + itemNum << " successfully!" << endl;
+        itemsList[index].count = newNumber - itemNum;
+        cout << "\t" << itemsList[index].name << " count changed to " << itemsList[index].count + itemNum << " successfully!" << endl;
         newNumber = 0;
         saveData();
         Sleep(4000);
@@ -586,10 +599,15 @@ void saveData()
     out << borrowedItem << '\n';
     out << itemNum << '\n';
 
-    for (int i = 0; i < itemsLength; i++)
+    int i = 0;
+    for (auto item : itemsList)
     {
-        out << itemsName[i] << '\n';
-        out << itemsCount[i] << '\n';
+        if (i == itemsLength)
+            break;
+        out << item.name << '\n';
+        out << item.count << '\n';
+
+        i++;
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -604,31 +622,34 @@ void loadData()
     getline(in, borrowedItem);
     in >> itemNum;
     in.ignore();
-    itemsName.clear();
-    itemsCount.clear();
+
+    itemsList.clear();
 
     for (int i = 0; i < itemsLength; i++)
     {
-        string name;
-        int count;
+        ItemForm uploadData;
 
-        getline(in, name);
-        in >> count;
+        getline(in, uploadData.name);
+        in >> uploadData.count;
         in.ignore();
 
-        itemsName.push_back(name);
-        itemsCount.push_back(count);
+        itemsList.push_back(uploadData);
     }
     importantNumber = -1;
     if (!borrowedItem.empty() && itemNum > 0)
     {
-        for (int i = 0; i < itemsLength; i++)
+        int i = 0;
+        for (auto item : itemsList)
         {
-            if (itemsName[i] == borrowedItem)
+            if (i == itemsLength)
+                break;
+            if (item.name == borrowedItem)
             {
                 importantNumber = i;
                 break;
             }
+
+            i++;
         }
     }
     if (importantNumber == -1)
